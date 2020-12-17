@@ -35,8 +35,12 @@ public class SessionTest4 extends HttpServlet {
       String user_id = request.getParameter("user_id");
       String user_pw = request.getParameter("user_pw");
       if (session.isNew()) {
+    	  //session 내장 객체의 isNew() 메소드는 세션이 처음 생성되었을 경우 "true"를 반환하지만, 이미 생성되어 있을 경우에는 "false"를 반환
          if (user_id != null) {
             session.setAttribute("user_id", user_id);
+    //        세션값 설정하기  
+     //session.setAttribute("설정한 세션아이디", 세션에 넣을 값);   
+
             out.println("<a href = 'SessionTest4'>로그인 상태 확인</a>");
          } else {
             out.print("<a href='login2.html'>다시 로그인하세요!!</a>");
@@ -44,6 +48,7 @@ public class SessionTest4 extends HttpServlet {
          }
       } else {
          user_id = (String) session.getAttribute("user_id");
+         //세션에 저장된 값 가져오기  
          
          if (user_id != null && user_id.length() != 0) {
             out.print("안녕하세요 " + user_id + "님 !!!");

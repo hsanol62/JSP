@@ -34,8 +34,10 @@ public class SessionTest5 extends HttpServlet {
       HttpSession session = request.getSession();
       String user_id = request.getParameter("user_id");
       String user_pw = request.getParameter("user_pw");
+//      user_id와pw를 받아와 각 변수에 저장
       if (session.isNew()) {
          if (user_id != null) {
+//            아이디가 null이 아닐 때 실행
             session.setAttribute("user_id", user_id);
             String url = response.encodeURL("login");
             //변수 url에 encodeURL()을 이용하여 응답시 미리 jsessionid를 저장한다.
@@ -43,8 +45,10 @@ public class SessionTest5 extends HttpServlet {
             out.println("<a href = 'SessionTest4'>로그인 상태 확인</a>");
             //로그인 상태 확인시 jsessionid를 서블릿으로 다시 전송한다.
          } else {
+//            아이디가 null일때 실행
             out.print("<a href='login2.html'>다시 로그인하세요!!</a>");
             session.invalidate();
+//             session.invalidate : 세션을 삭제
          }
       } else {
          user_id = (String) session.getAttribute("user_id");
