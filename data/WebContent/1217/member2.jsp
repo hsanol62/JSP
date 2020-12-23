@@ -2,7 +2,8 @@
     pageEncoding="UTF-8"
     isELIgnored="false"%>
     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-        <!-- common.jsp에 커스텀 액션을 사용하겠다 정의 선언  -->
+         <!-- common.jsp에 커스텀 액션을 사용하겠다 정의 선언  -->
+ 
     <%
     request.setCharacterEncoding("UTF-8");
     %>
