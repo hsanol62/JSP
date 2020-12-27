@@ -1,11 +1,9 @@
-package sec03.brd04;
-
+package sec03.brd07;
 
 import java.util.List;
 
 public class BoardService {
 	BoardDAO boardDAO;
-	//boardDAO에 있는 메소드 호출
 
 	public BoardService() {
 		boardDAO = new BoardDAO();
@@ -13,7 +11,6 @@ public class BoardService {
 
 	public List<ArticleVO> listArticles() {
 		List<ArticleVO> articlesList = boardDAO.selectAllArticles();
-		//전체 글 정보를 조회하는 sql문 실행
 		return articlesList;
 	}
 
@@ -25,6 +22,20 @@ public class BoardService {
 		ArticleVO article = null;
 		article = boardDAO.selectArticle(articleNO);
 		return article;
+	}
+
+	public void modArticle(ArticleVO article) {
+		boardDAO.updateArticle(article);
+	}
+
+	public List<Integer> removeArticle(int  articleNO) {
+		List<Integer> articleNOList = boardDAO.selectRemovedArticles(articleNO);
+		boardDAO.deleteArticle(articleNO);
+		return articleNOList;
+	}
+	
+	public int addReply(ArticleVO article) {
+		return boardDAO.insertNewArticle(article);
 	}
 
 }

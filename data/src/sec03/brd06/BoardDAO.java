@@ -1,5 +1,4 @@
-package sec03.brd04;
-
+package sec03.brd06;
 
 import java.net.URLEncoder;
 import java.sql.Connection;
@@ -12,7 +11,6 @@ import java.util.List;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
-
 
 public class BoardDAO {
 	private DataSource dataFactory;
@@ -33,17 +31,17 @@ public class BoardDAO {
 		List<ArticleVO> articlesList = new ArrayList<ArticleVO>();
 		try {
 			conn = dataFactory.getConnection();
-			// Context : JNDI를 수행하는 객체로 DataSource를 제공한다.
-        	// JDNI에 접근하기 위해 기본 경로(java:/comp/env)를 지정.
+			//data 연결
 			String query = "SELECT LEVEL,articleNO,parentNO,title,content,id,writeDate" + " from t_board"
 					+ " START WITH  parentNO=0" + " CONNECT BY PRIOR articleNO=parentNO"
 					+ " ORDER SIBLINGS BY articleNO DESC";
-			//sql문생성
+			//sql문 생성
 			System.out.println(query);
 			pstmt = conn.prepareStatement(query);
 			// preparedStatement 메소드에 sql문을 전달해 prepareStatement객체를 생성
 			//PreparedStatement 는 sql developer에서 우리가 query를 입력하는 입력창이라고 생각
 			ResultSet rs = pstmt.executeQuery();
+
 			//결과를 담을 ResultSet rs 생성 후 결과 담기
 			///executeQuery: ResultSet 객체에 결과값을 담을 수 있습니다
 
@@ -56,6 +54,7 @@ public class BoardDAO {
 				String id = rs.getString("id");
 				Date writeDate = rs.getDate("writeDate");
 				ArticleVO article = new ArticleVO();
+				//ArticleVO article 생성
 				article.setLevel(level);
 				article.setArticleNO(articleNO);
 				article.setParentNO(parentNO);
@@ -77,15 +76,11 @@ public class BoardDAO {
 	private int getNewArticleNO() {
 		try {
 			conn = dataFactory.getConnection();
-			//data연결
 			String query = "SELECT  max(articleNO) from t_board ";
+			//t_board
 			System.out.println(query);
 			pstmt = conn.prepareStatement(query);
-			// preparedStatement 메소드에 sql문을 전달해 prepareStatement객체를 생성
-			//PreparedStatement 는 sql developer에서 우리가 query를 입력하는 입력창이라고 생각
-			ResultSet rs = pstmt.executeQuery();
-			//결과를 담을 ResultSet rs 생성 후 결과 담기
-			///executeQuery: ResultSet 객체에 결과값을 담을 수 있습니다
+			ResultSet rs = pstmt.executeQuery(query);
 			if (rs.next())
 				return (rs.getInt(1) + 1);
 			rs.close();
@@ -122,46 +117,116 @@ public class BoardDAO {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return articleNO;
 	}
-	
-	public ArticleVO selectArticle(int articleNO){
-		ArticleVO article=new ArticleVO();
-		try{
-		conn = dataFactory.getConnection();
-		String query ="select articleNO,parentNO,title,content, imageFileName,id,writeDate"
-			                     +" from t_board" 
-			                     +" where articleNO=?";
-		//sql문 생성
-		System.out.println(query);
-		pstmt = conn.prepareStatement(query);
-		pstmt.setInt(1, articleNO);
-		ResultSet rs =pstmt.executeQuery();
-		rs.next();
-		int _articleNO =rs.getInt("articleNO");
-		int parentNO=rs.getInt("parentNO");
-		String title = rs.getString("title");
-		String content =rs.getString("content");
-	    String imageFileName = rs.getString("imageFileName"); 
-		String id = rs.getString("id");
-		Date writeDate = rs.getDate("writeDate");
 
-		article.setArticleNO(_articleNO);
-		article.setParentNO (parentNO);
-		article.setTitle(title);
-		article.setContent(content);
-		article.setImageFileName(imageFileName);
-		article.setId(id);
-		article.setWriteDate(writeDate);
-		rs.close();
-		pstmt.close();
-		conn.close();
-		}catch(Exception e){
-		e.printStackTrace();	
+	public ArticleVO selectArticle(int articleNO) {
+		ArticleVO article = new ArticleVO();
+		try {
+			conn = dataFactory.getConnection();
+			String query = "select articleNO,parentNO,title,content, imageFileName,id,writeDate" + " from t_board"
+					+ " where articleNO=?";
+			System.out.println(query);
+			pstmt = conn.prepareStatement(query);
+			pstmt.setInt(1, articleNO);
+			ResultSet rs = pstmt.executeQuery();
+			rs.next();
+			int _articleNO = rs.getInt("articleNO");
+			int parentNO = rs.getInt("parentNO");
+			String title = rs.getString("title");
+			String content = rs.getString("content");
+			String imageFileName =rs.getString("imageFileName");
+			String id = rs.getString("id");
+			Date writeDate = rs.getDate("writeDate");
+
+			article.setArticleNO(_articleNO);
+			article.setParentNO(parentNO);
+			article.setTitle(title);
+			article.setContent(content);
+			article.setImageFileName(imageFileName);
+			article.setId(id);
+			article.setWriteDate(writeDate);
+			rs.close();
+			pstmt.close();
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return article;
+	}
+
+	public void updateArticle(ArticleVO article) {
+		int articleNO = article.getArticleNO();
+		String title = article.getTitle();
+		String content = article.getContent();
+		String imageFileName = article.getImageFileName();
+		try {
+			conn = dataFactory.getConnection();
+			String query = "update t_board  set title=?,content=?";
+			if (imageFileName != null && imageFileName.length() != 0) {
+				query += ",imageFileName=?";
+			}
+			query += " where articleNO=?";
+
+			System.out.println(query);
+			pstmt = conn.prepareStatement(query);
+			pstmt.setString(1, title);
+			pstmt.setString(2, content);
+			if (imageFileName != null && imageFileName.length() != 0) {
+				pstmt.setString(3, imageFileName);
+				pstmt.setInt(4, articleNO);
+			} else {
+				pstmt.setInt(3, articleNO);
+			}
+			pstmt.executeUpdate();
+			pstmt.close();
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-	
+	}
+
+	public void deleteArticle(int  articleNO) {
+		try {
+			conn = dataFactory.getConnection();
+			String query = "DELETE FROM t_board ";
+			query += " WHERE articleNO in (";
+			query += "  SELECT articleNO FROM  t_board ";
+			query += " START WITH articleNO = ?";
+			query += " CONNECT BY PRIOR  articleNO = parentNO )";
+			System.out.println(query);
+			pstmt = conn.prepareStatement(query);
+			pstmt.setInt(1, articleNO);
+			pstmt.executeUpdate();
+			pstmt.close();
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public List<Integer> selectRemovedArticles(int  articleNO) {
+		List<Integer> articleNOList = new ArrayList<Integer>();
+		try {
+			conn = dataFactory.getConnection();
+			String query = "SELECT articleNO FROM  t_board  ";
+			query += " START WITH articleNO = ?";
+			query += " CONNECT BY PRIOR  articleNO = parentNO";
+			System.out.println(query);
+			pstmt = conn.prepareStatement(query);
+			pstmt.setInt(1, articleNO);
+			ResultSet rs = pstmt.executeQuery();
+			while (rs.next()) {
+				articleNO = rs.getInt("articleNO");
+				articleNOList.add(articleNO);
+			}
+			pstmt.close();
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return articleNOList;
+	}
 
 }
